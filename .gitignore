@@ -1,0 +1,39 @@
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.env/
+.venv/
+env/
+venv/
+
+# Logs
+app/logs/
+
+# Database files
+*.sqlite3
+*.db
+*.db-journal
+
+# Python coverage / testing
+.coverage
+*.cover
+coverage.xml
+htmlcov/
+.pytest_cache/
+
+# Mypy / type checking
+.mypy_cache/
+.dmypy.json
+
+# IDEs
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# PyInstaller
+*.spec

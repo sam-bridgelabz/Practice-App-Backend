@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from app.config.database import Base, engine
 from app.routers.ques_router import question_router
 from app.models import ques_model
+from app.routers.ans_route import answer_router
 
 logger = AppLogger.get_logger()
 
@@ -39,6 +40,7 @@ async def response_validation_exception_handler(request: Request, exc: ResponseV
     )
 
 app.include_router(question_router)
+app.include_router(answer_router)
 
 if __name__ == "__main__":
     import logging

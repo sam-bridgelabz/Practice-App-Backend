@@ -1,4 +1,3 @@
-from app.config.logger import AppLogger
 from sqlalchemy import (
     Column, String, Enum, Text, DECIMAL, Integer, JSON,
     Boolean, ForeignKey
@@ -82,7 +81,7 @@ class Subtopic(Base):
 
 
 class Question(Base):
-    __tablename__ = "question"
+    __tablename__ = "questions"
 
     id = Column(String(36), primary_key=True)
     programme_id = Column(

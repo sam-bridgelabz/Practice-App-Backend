@@ -6,16 +6,10 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.schemas.ques_schema import QuestionFiltered
 from app.crud import ques_crud
-from app.config.database import SessionLocal
+from app.config.database import get_db
 
 question_router = APIRouter(prefix="/questions", tags=["Questions"])
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @question_router.get("/get_questions", response_model=List[QuestionFiltered])
 def read_questions(
