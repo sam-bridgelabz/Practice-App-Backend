@@ -1,4 +1,5 @@
 from app.config.logger import AppLogger
+import os
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import ResponseValidationError
@@ -6,7 +7,11 @@ from contextlib import asynccontextmanager
 from app.config.database import Base, engine
 from app.routers.ques_router import question_router
 from app.models import ques_model
+from app.models import review_model
 from app.routers.ans_route import answer_router
+from app.routers.review_routes import review_router
+from app.utils.s3_utils import create_s3_folders
+from app.config.agent_initialization import gemini_agent
 
 logger = AppLogger.get_logger()
 
@@ -15,7 +20,16 @@ async def lifespan(app: FastAPI):
     try:
         logger.info("Practice App starting...")
         Base.metadata.create_all(bind=engine)
+
+        if gemini_agent is not None:
+            analyser_agent_response = await gemini_agent.run("Hi Code Analyser Agent")
+            logger.info(f"Code Analyser agent initialized --> {analyser_agent_response.output}")
+
+        FOLDER_LIST = ["answers/", "logs/"]
         logger.info("Tables created successfully.")
+        create_s3_folders(os.getenv("AWS_BUCKET"), FOLDER_LIST)
+        logger.info("Folders created in S3 bucket successfully.")
+
     except Exception as e:
         logger.exception(f"Error creating tables: {e}")
 
@@ -41,6 +55,7 @@ async def response_validation_exception_handler(request: Request, exc: ResponseV
 
 app.include_router(question_router)
 app.include_router(answer_router)
+app.include_router(review_router)
 
 if __name__ == "__main__":
     import logging
