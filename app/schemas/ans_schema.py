@@ -26,8 +26,21 @@ class AnswerCreate(BaseModel):
     quality_feedback: QualityFeedback
     quality_scores: QualityScores
 
+# class AnswerInput(BaseModel):
+#     question_text: str
+#     answer_text: str
+#     question_id: str
+#     coe_name: str
+#     program_name: str
+#     semester: str
+#     user_id: str
+#     module: str
+#     question_id: str
+
 class AnswerInput(BaseModel):
+    prompt: str
     question_text: str
+    question_type: str
     answer_text: str
     question_id: str
     coe_name: str

@@ -1,12 +1,17 @@
 from app.config.logger import AppLogger
 import re
-from app.config.agent_initialization import gemini_agent as code_analyser_agent
+# from app.config.agent_initialization import gemini_agent as code_analyser_agent
 from fastapi.responses import JSONResponse
 from google.api_core import exceptions as google_exceptions
 # from app.utils.github_utils import fetch_github_code
-from app.templates.prompts import REVIEW_PROMPT
+from app.templates.prompts import REVIEW_PROMPT, REVIEW_PROMPT_THEORY
 from app.schemas.model_resp_schema import *
 import json
+from pydantic_ai.settings import ModelSettings
+from pydantic_ai.agent import Agent
+from app.config.settings import settings
+from app.config.agent_initialization import gemini_model
+from app.crud.pricing_queries import insert_pricing_data
 
 logger = AppLogger.get_logger()
 
@@ -74,22 +79,78 @@ def extract_json_from_model_output(text: str) -> str:
 #         logger.error(f"Error detecting language: {str(e)}")
 #         raise ValueError(f"Error detecting language: {str(e)}")
 
-async def review_code_with_gemini(question: str, code: str, language: str) -> dict:
+# async def review_code_with_gemini(question: str, code: str, language: str) -> dict:
+#     logger.info(f"Reviewing code for language review_code_with_gemini: {language}")
+#     try:
+
+#         prompt = REVIEW_PROMPT.format(language=language, question=question, code=code)
+
+#         code_analyser_agent = Agent(
+#         model = gemini_model,
+#         system_prompt = CODE_QUALITY_ANALYSER_SYS_PROMPT,
+#         model_settings = ModelSettings(
+#             temperature=settings.GEMINI_TEMPERATURE,
+#             )
+#         )
+
+#         if not code_analyser_agent:
+#             raise ValueError("Gemini agent not initialized")
+#         else:
+#             logger.info("Gemini agent initialized")
+
+#             response = await code_analyser_agent.run(prompt)
+#             logger.info(f"Code Analysis generated{response.output}")
+#             text_output = extract_json_from_model_output(response.output)
+
+#             try:
+#                 parsed = json.loads(text_output)
+#             except json.JSONDecodeError:
+#                 logger.error(f"Agent did not return valid JSON.\nOutput was:\n{text_output}")
+#                 raise ValueError(f"Agent did not return valid JSON.\nOutput was:\n{text_output}")
+#             return parsed
+
+#     except google_exceptions.GoogleAPICallError as e:
+#         logger.error(f"Gemini API error while reviewing code: {str(e)}")
+#         raise ValueError(f"Gemini API error while reviewing code: {str(e)}")
+#     except Exception as e:
+#         logger.error(f"Unexpected error reviewing code: {str(e)}")
+#         raise ValueError(f"Unexpected error reviewing code: {str(e)}")
+
+async def review_code_with_gemini(db, user_id: str, prompt: str, question: str, code: str, language: str, question_type: str) -> dict:
     logger.info(f"Reviewing code for language review_code_with_gemini: {language}")
     try:
+        if question_type == "TEXT":
+            prompt = REVIEW_PROMPT_THEORY.format(language=language, question=prompt, code=code)
+        else:
+            prompt = REVIEW_PROMPT.format(language=language, question=prompt, code=code)
 
         prompt = REVIEW_PROMPT.format(language=language, question=question, code=code)
 
-        response = await code_analyser_agent.run(prompt)
-        logger.info(f"Code Analysis generated{response.output}")
-        text_output = extract_json_from_model_output(response.output)
+        code_analyser_agent = Agent(
+            model = gemini_model,
+            system_prompt = prompt,
+            model_settings = ModelSettings(
+                temperature=settings.GEMINI_TEMPERATURE,
+                )
+        )
 
-        try:
-            parsed = json.loads(text_output)
-        except json.JSONDecodeError:
-            logger.error(f"Agent did not return valid JSON.\nOutput was:\n{text_output}")
-            raise ValueError(f"Agent did not return valid JSON.\nOutput was:\n{text_output}")
-        return parsed
+        if not code_analyser_agent:
+            raise ValueError("Gemini agent not initialized")
+        else:
+            logger.info("Gemini agent initialized")
+
+            response = await code_analyser_agent.run(prompt)
+            logger.info(f"Code Analysis generated{response.output}")
+
+            insert_pricing_data(db, user_id, "Java", response)
+            text_output = extract_json_from_model_output(response.output)
+
+            try:
+                parsed = json.loads(text_output)
+            except json.JSONDecodeError:
+                logger.error(f"Agent did not return valid JSON.\nOutput was:\n{text_output}")
+                raise ValueError(f"Agent did not return valid JSON.\nOutput was:\n{text_output}")
+            return parsed
 
     except google_exceptions.GoogleAPICallError as e:
         logger.error(f"Gemini API error while reviewing code: {str(e)}")

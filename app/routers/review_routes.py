@@ -39,6 +39,48 @@ def upload_to_s3(payload: AnswerInput) -> str:
     return f"https://{S3_BUCKET}.s3.amazonaws.com/{s3_key}"
 
 
+# @review_router.post("/answers/")
+# async def create_answer(payload: AnswerInput, db: Session = Depends(get_db)):
+#     review_results = None
+#     try:
+#         file_url = upload_to_s3(payload)
+
+#         logger.info("Storing Answer url in DB...")
+#         new_answer = Answer(
+#             question_id=payload.question_id,
+#             user_id=payload.user_id,
+#             file_url=file_url
+#         )
+#         db.add(new_answer)
+#         db.commit()
+#         db.refresh(new_answer)
+#         logger.info(f"Answer stored in DB with id: {new_answer.id}")
+
+#         try:
+#             logger.info("Running code review with code analyser agent...")
+#             review_results = await review_code_with_gemini(payload.question_text, payload.answer_text, "Java")
+#             logger.info(f"Code Analysing finished with Review results: {review_results}")
+#         except ValueError as e:
+#             logger.warning(f"Code review failed: {e}")
+#             review_results = None
+
+#         store_code_review_to_db(db, new_answer.id, review_results)
+
+#         return {
+#             "message": "Answer stored and review generated successfully",
+#             "payload": {
+#                 "answer_id": new_answer.id,
+#                 "file_url": new_answer.file_url,
+#                 "review_generated": review_results
+#                 },
+#             "status": 201
+#         }
+
+#     except Exception as e:
+#         db.rollback()
+#         raise HTTPException(status_code=500, detail=str(e))
+
+
 @review_router.post("/answers/")
 async def create_answer(payload: AnswerInput, db: Session = Depends(get_db)):
     review_results = None
@@ -58,7 +100,7 @@ async def create_answer(payload: AnswerInput, db: Session = Depends(get_db)):
 
         try:
             logger.info("Running code review with code analyser agent...")
-            review_results = await review_code_with_gemini(payload.question_text, payload.answer_text, "Java")
+            review_results = await review_code_with_gemini(db, payload.user_id, payload.question_text, payload.answer_text, "Java", payload.question_type)
             logger.info(f"Code Analysing finished with Review results: {review_results}")
         except ValueError as e:
             logger.warning(f"Code review failed: {e}")

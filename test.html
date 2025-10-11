@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Java Executor Terminal</title>
+    <style>
+        body {
+            font-family: monospace;
+            background-color: #1e1e1e;
+            color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        h2 {
+            color: #00ff99;
+        }
+
+        #code {
+            width: 80%;
+            height: 200px;
+            background: #2e2e2e;
+            color: #f5f5f5;
+            border: 1px solid #555;
+            padding: 10px;
+            font-family: monospace;
+        }
+
+        #output {
+            width: 80%;
+            height: 300px;
+            background: #000;
+            color: #0f0;
+            padding: 10px;
+            margin-top: 15px;
+            overflow-y: auto;
+            border: 1px solid #555;
+            white-space: pre-wrap;
+        }
+
+        #inputBox {
+            width: 80%;
+            margin-top: 10px;
+            padding: 5px;
+            background: #2e2e2e;
+            color: #f5f5f5;
+            border: 1px solid #555;
+            font-family: monospace;
+        }
+
+        #run,
+        #exit {
+            margin-top: 10px;
+            padding: 8px 16px;
+            font-family: monospace;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            margin-right: 10px;
+        }
+
+        #run {
+            background-color: #00ff99;
+            color: #000;
+        }
+
+        #exit {
+            background-color: #ff4444;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Java Executor Terminal</h2>
+
+    <textarea id="code">
+// Example Java code:
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter your name:");
+        String name = sc.nextLine();
+        System.out.println("Hello, " + name + "!");
+    }
+}
+  </textarea><br>
+
+    <button id="run">Run</button>
+    <button id="exit" disabled>Exit</button>
+
+    <div id="output"></div>
+    <input id="inputBox" placeholder="Type input here and press Enter" disabled />
+
+    <script>
+        let ws;
+        const outputDiv = document.getElementById("output");
+        const inputBox = document.getElementById("inputBox");
+        const runBtn = document.getElementById("run");
+        const exitBtn = document.getElementById("exit");
+
+        function appendOutput (text) {
+            outputDiv.textContent += text;
+            outputDiv.scrollTop = outputDiv.scrollHeight;
+        }
+
+        runBtn.onclick = () => {
+            const code = document.getElementById("code").value;
+            outputDiv.textContent = "Connecting to WebSocket...\n";
+
+            ws = new WebSocket("ws://127.0.0.1:8000/ws/execute_java/");
+
+            ws.onopen = () => {
+                appendOutput("Connected\n");
+                ws.send(JSON.stringify({ code }));
+                inputBox.disabled = false;
+                exitBtn.disabled = false;
+                inputBox.focus();
+            };
+
+            ws.onmessage = (event) => {
+                appendOutput(event.data);
+            };
+
+            ws.onclose = () => {
+                appendOutput("\n🔌 Connection closed.\n");
+                inputBox.disabled = true;
+                exitBtn.disabled = true;
+            };
+        };
+
+        inputBox.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(inputBox.value);
+                inputBox.value = "";
+            }
+        });
+
+        exitBtn.onclick = () => {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send("exit");
+            }
+        };
+    </script>
+</body>
+
+</html>

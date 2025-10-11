@@ -26,6 +26,7 @@ def read_questions(
         payload = [
             {
                 "id": q.id,
+                "question_type": q.question_type,
                 "stem_md": q.stem_md,
                 "solution_md": q.solution_md,
                 "score_weight": float(q.score_weight) if isinstance(q.score_weight, Decimal) else q.score_weight

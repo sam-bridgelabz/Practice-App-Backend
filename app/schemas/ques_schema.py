@@ -25,6 +25,7 @@ class QuestionBase(BaseModel):
 
 class QuestionFiltered(BaseModel):
     id: str
+    question_type: str
     stem_md: str
     solution_md: Optional[str]
     score_weight: float
