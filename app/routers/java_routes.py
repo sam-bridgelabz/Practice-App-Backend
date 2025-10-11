@@ -111,7 +111,7 @@ from queue import Queue
 from app.config.logger import AppLogger
 
 logger = AppLogger.get_logger()
-java_router = APIRouter()
+java_router = APIRouter(prefix="/compile", tags=["Code Compliation and Running"])
 
 
 @java_router.websocket("/ws/execute_java/")

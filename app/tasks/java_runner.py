@@ -14,17 +14,16 @@ def compile_and_run_java_task(self, java_code: str):
             with open(java_file, "w") as f:
                 f.write(java_code)
 
-            # ✅ Compile Java
+
             compile_proc = subprocess.run(
-                ["javac", java_file],
+                ["/usr/bin/javac", java_file],
                 capture_output=True, text=True, timeout=10
             )
             if compile_proc.returncode != 0:
                 return {"status": "error", "output": compile_proc.stderr}
 
-            # ✅ Run compiled Java
             run_proc = subprocess.run(
-                ["java", "-cp", tmpdir, "Main"],
+                ["/usr/bin/java", "-cp", tmpdir, "Main"],
                 capture_output=True, text=True, timeout=5
             )
 

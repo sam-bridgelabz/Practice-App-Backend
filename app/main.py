@@ -8,7 +8,7 @@ if sys.platform.startswith("win"):
 from app.config.logger import AppLogger
 import os
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.exceptions import ResponseValidationError
 from contextlib import asynccontextmanager
 from app.config.database import Base, engine
@@ -58,9 +58,17 @@ async def response_validation_exception_handler(request: Request, exc: ResponseV
         content={
             "success_status": False,
             "error_details": "Response model validation failed",
-            "validation_errors": exc.errors(),   # detailed error info
+            "validation_errors": exc.errors(),
         },
     )
+
+@app.get("/test", response_class=HTMLResponse)
+async def serve_test_page():
+    """Serves the WebSocket test HTML file"""
+    file_path = os.path.join(os.path.dirname(__file__), "templates", "test.html")
+    with open(file_path, "r", encoding="utf-8") as f:
+        html_content = f.read()
+    return HTMLResponse(content=html_content)
 
 app.include_router(question_router)
 app.include_router(answer_router)
