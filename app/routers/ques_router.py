@@ -13,20 +13,21 @@ question_router = APIRouter(prefix="/questions", tags=["Questions"])
 
 @question_router.get("/get_questions", response_model=List[QuestionFiltered])
 def read_questions(
-    question_type: str = Query(..., description="Filter by question type"),
+    answer_type: str = Query(..., description="Filter by question type"),
     skip: int = 0,
     limit: int = 10,
     db: Session = Depends(get_db)
 ):
     try:
-        questions = ques_crud.get_questions_by_type(
-            db, question_type=question_type, skip=skip, limit=limit
+        questions = ques_crud.get_questions_by_ans_type(
+            db, answer_type=answer_type, skip=skip, limit=limit
         )
 
         payload = [
             {
                 "id": q.id,
                 "question_type": q.question_type,
+                "answer_type": q.answer_type,
                 "stem_md": q.stem_md,
                 "solution_md": q.solution_md,
                 "score_weight": float(q.score_weight) if isinstance(q.score_weight, Decimal) else q.score_weight

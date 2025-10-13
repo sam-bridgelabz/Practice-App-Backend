@@ -116,15 +116,15 @@ def extract_json_from_model_output(text: str) -> str:
 #         logger.error(f"Unexpected error reviewing code: {str(e)}")
 #         raise ValueError(f"Unexpected error reviewing code: {str(e)}")
 
-async def review_code_with_gemini(db, user_id: str, prompt: str, question: str, code: str, language: str, question_type: str) -> dict:
+async def review_code_with_gemini(db, user_id: str, prompt_str: str, question: str, code: str, language: str) -> dict:
     logger.info(f"Reviewing code for language review_code_with_gemini: {language}")
     try:
-        if question_type == "TEXT":
-            prompt = REVIEW_PROMPT_THEORY.format(language=language, question=prompt, code=code)
-        else:
-            prompt = REVIEW_PROMPT.format(language=language, question=prompt, code=code)
+        # if question_type == "TEXT":
+        #     prompt = REVIEW_PROMPT_THEORY.format(language=language, question=prompt, code=code)
+        # else:
+        #     prompt = REVIEW_PROMPT.format(language=language, question=prompt, code=code)
 
-        prompt = REVIEW_PROMPT.format(language=language, question=question, code=code)
+        prompt = prompt_str.format(language=language, question=question, code=code)
 
         code_analyser_agent = Agent(
             model = gemini_model,

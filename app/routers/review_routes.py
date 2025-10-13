@@ -100,7 +100,7 @@ async def create_answer(payload: AnswerInput, db: Session = Depends(get_db)):
 
         try:
             logger.info("Running code review with code analyser agent...")
-            review_results = await review_code_with_gemini(db, payload.user_id, payload.question_text, payload.answer_text, "Java", payload.question_type)
+            review_results = await review_code_with_gemini(db, payload.user_id, payload.question_text, payload.answer_text, "Java")
             logger.info(f"Code Analysing finished with Review results: {review_results}")
         except ValueError as e:
             logger.warning(f"Code review failed: {e}")
