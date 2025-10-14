@@ -42,6 +42,7 @@ class AnswerInput(BaseModel):
     question_text: str
     question_type: str
     answer_text: str
+    answer_type: str
     question_id: str
     coe_name: str
     program_name: str

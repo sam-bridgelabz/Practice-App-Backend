@@ -5,7 +5,7 @@ from app.config.database import get_db
 from app.models.ans_model import Answer
 from app.schemas.ans_schema import AnswerInput
 from app.utils.code_utils import review_code_with_gemini
-from app.crud.review_crud import store_code_review_to_db
+from app.crud.review_crud import store_code_review_to_db, store_theory_review_to_db
 import boto3
 import os
 import io
@@ -100,13 +100,18 @@ async def create_answer(payload: AnswerInput, db: Session = Depends(get_db)):
 
         try:
             logger.info("Running code review with code analyser agent...")
-            review_results = await review_code_with_gemini(db, payload.user_id, payload.question_text, payload.answer_text, "Java")
+            review_results = await review_code_with_gemini(db, payload.user_id, payload.prompt, payload.question_text, payload.answer_text, "Java")
             logger.info(f"Code Analysing finished with Review results: {review_results}")
         except ValueError as e:
             logger.warning(f"Code review failed: {e}")
             review_results = None
 
-        store_code_review_to_db(db, new_answer.id, review_results)
+        if payload.answer_type == "CODE":
+            store_code_review_to_db(db, new_answer.id, review_results)
+        elif payload.answer_type == "TEXT":
+            store_theory_review_to_db(db, new_answer.id, review_results)
+        else:
+            logger.warning(f"Unknown answer type: {payload.answer_type}")
 
         return {
             "message": "Answer stored and review generated successfully",

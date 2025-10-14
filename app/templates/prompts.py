@@ -47,37 +47,71 @@ Code:
 """
 
 REVIEW_PROMPT_THEORY = """
-    You are an academic content reviewer. Analyze the following theoretical answer written in response to the given question, and return ONLY valid JSON in the format below:
+You are an academic content reviewer in the field of {language}. Analyze the following theoretical answer in the context of the given question and return ONLY valid JSON in the format below:
 
-    {
+{{
     "Question": "{question}",
-    "Answer_Analysis": {
-    "What_was_explained_well": "<text>",
-    "What_can_be_improved": "<text>"
-    },
-    "Answer_Quality_Qualitative": {
-    "Conceptual_Clarity": "<text>",
-    "Accuracy": "<text>",
-    "Depth_of_Explanation": "<text>",
-    "Relevance": "<text>",
-    "Structure_and_Presentation": "<text>"
-    },
-    "Answer_Quality_Quantitative": {
-    "Conceptual_Clarity": <1-10>,
-    "Accuracy": <1-10>,
-    "Depth_of_Explanation": <1-10>,
-    "Relevance": <1-10>,
-    "Structure_and_Presentation": <1-10>,
-    "Overall": <1-10>
-    }
-    }
+    "Answer_Analysis": {{
+        "What_was_explained_well": "<text>",
+        "What_can_be_improved": "<text>"
+    }},
+    "Answer_Quality_Qualitative": {{
+        "Conceptual_Clarity": "<text>",
+        "Accuracy": "<text>",
+        "Depth_of_Explanation": "<text>",
+        "Relevance": "<text>",
+        "Structure_and_Presentation": "<text>"
+    }},
+    "Answer_Quality_Quantitative": {{
+        "Conceptual_Clarity": <1-10>,
+        "Accuracy": <1-10>,
+        "Depth_of_Explanation": <1-10>,
+        "Relevance": <1-10>,
+        "Structure_and_Presentation": <1-10>,
+        "Overall": <1-10>
+    }}
+}}
 
-    Question:
-    {question}
+Question:
+{question}
 
-    Answer:
-    {answer}
-    """
+Answer:
+{code}
+"""
+
+
+# REVIEW_PROMPT_THEORY = """
+#     You are an academic content reviewer. Analyze the following theoretical answer written in response to the given question, and return ONLY valid JSON in the format below:
+
+#     {
+#     "Question": "{question}",
+#     "Answer_Analysis": {
+#     "What_was_explained_well": "<text>",
+#     "What_can_be_improved": "<text>"
+#     },
+#     "Answer_Quality_Qualitative": {
+#     "Conceptual_Clarity": "<text>",
+#     "Accuracy": "<text>",
+#     "Depth_of_Explanation": "<text>",
+#     "Relevance": "<text>",
+#     "Structure_and_Presentation": "<text>"
+#     },
+#     "Answer_Quality_Quantitative": {
+#     "Conceptual_Clarity": <1-10>,
+#     "Accuracy": <1-10>,
+#     "Depth_of_Explanation": <1-10>,
+#     "Relevance": <1-10>,
+#     "Structure_and_Presentation": <1-10>,
+#     "Overall": <1-10>
+#     }
+#     }
+
+#     Question:
+#     {question}
+
+#     Answer:
+#     {answer}
+#     """
 
 
 

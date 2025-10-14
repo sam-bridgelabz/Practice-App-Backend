@@ -15,12 +15,14 @@ from app.config.database import Base, engine
 from app.routers.ques_router import question_router
 from app.models import ques_model
 from app.models import review_model
+from app.models.pricing_model import GeminiUsage
 from app.routers.ans_route import answer_router
 from app.routers.review_routes import review_router
 from app.utils.s3_utils import create_s3_folders
 from app.routers.prompt_route import prompt_router
 from app.config.agent_initialization import gemini_model
 from app.routers.java_routes import java_router
+from fastapi.middleware.cors import CORSMiddleware
 
 logger = AppLogger.get_logger()
 
@@ -51,6 +53,15 @@ app = FastAPI(
     lifespan=lifespan
     )
 
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.exception_handler(ResponseValidationError)
 async def response_validation_exception_handler(request: Request, exc: ResponseValidationError):
     return JSONResponse(
@@ -61,7 +72,6 @@ async def response_validation_exception_handler(request: Request, exc: ResponseV
             "validation_errors": exc.errors(),
         },
     )
-
 @app.get("/test", response_class=HTMLResponse)
 async def serve_test_page():
     """Serves the WebSocket test HTML file"""

@@ -140,9 +140,10 @@ async def review_code_with_gemini(db, user_id: str, prompt_str: str, question: s
             logger.info("Gemini agent initialized")
 
             response = await code_analyser_agent.run(prompt)
-            logger.info(f"Code Analysis generated{response.output}")
+            logger.info(f"response = {response}")
+            # logger.info(f"Code Analysis generated{response.output}")
 
-            insert_pricing_data(db, user_id, "Java", response)
+            insert_pricing_data(db, user_id, "Java", prompt, response)
             text_output = extract_json_from_model_output(response.output)
 
             try:

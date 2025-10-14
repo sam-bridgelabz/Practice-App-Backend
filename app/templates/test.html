@@ -113,7 +113,7 @@ public class Main {
             const code = document.getElementById("code").value;
             outputDiv.textContent = "Connecting to WebSocket...\n";
 
-            ws = new WebSocket("ws://13.201.51.119:8000/ws/execute_java/");
+            ws = new WebSocket("ws://52.66.201.120:8000/ws/execute_java/");
 
             ws.onopen = () => {
                 appendOutput("Connected\n");
